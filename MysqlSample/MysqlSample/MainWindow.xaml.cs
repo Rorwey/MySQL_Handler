@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace MysqlSample
 {
@@ -26,12 +28,34 @@ namespace MysqlSample
             InitializeComponent();
 
             MySqlConn db = new MySqlConn();
+            MySqlConnection con = new MySqlConnection();
+            string query;
+
+            db.Conn = con;
+            db.Server = "localhost";
+            db.DB = "test";
+            db.UID = "root";
+            db.PWD = "admin";
+
             db.Connect();
-            db.Execute("SELECT * FROM fix_register");
-            
+
+            query = "SELECT * FROM fix_register";
+            //query = "DESC fix_register";
+            db.Execute(query);
+
+            MySqlDataAdapter da = new MySqlDataAdapter(query, con);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+
+            if (ds.Tables.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    Console.WriteLine(string.Format("일련번호 : {0} \n수리번호 : {1}\n", row["idx"], row["fix_idx"]));
+                }
+            }
 
             db.DisConnect();
-
         }
     }
 }
